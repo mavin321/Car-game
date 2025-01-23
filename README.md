@@ -34,6 +34,8 @@ Download or clone the game repository, navigate to the folder, and run car_game.
 Gameplay
 
 Left click the screen to start
+Use the W key to move your car forward.
+Use the S key to move your car back.
 Use the A key to move your car left.
 Use the D key to move your car right.
 Avoid crashing into other cars to keep playing and increase your score.
