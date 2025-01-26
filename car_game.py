@@ -1,9 +1,12 @@
 import pygame
 from pygame.locals import *
 import random
+import time
+
 
 #initialize pygame
 pygame.init()
+pygame.mixer.init()
 
 #game speed
 clock=pygame.time.Clock()
@@ -44,6 +47,7 @@ def reset_game():
     #reposition the bird
     mycar.rect.x=270
     mycar.rect.y=screen_height-160
+    
     
 
 
@@ -129,7 +133,12 @@ user_car_group.add(mycar)
 
 #create restart button instance
 button=Button(screen_width//2 - 50, screen_height//2 -100, button_image)
-
+#sound
+car_sounds=pygame.mixer.Sound('music/carsound.mp3')
+pygame.mixer.music.load('music/backgroundmusic.mp3')
+pygame.mixer.music.play(-1)
+explosion_sounds=pygame.mixer.Sound('music/explosion.mp3')
+starting_sound=pygame.mixer.Sound('music/startup.mp3')
 
 #create game loop
 run=True
@@ -155,22 +164,32 @@ while run:
         if pass_car== True:
             if user_car_group.sprites()[0].rect.top > npc_car_group.sprites()[0].rect.top:
                 score+=1
+                scroll_speed+=0.3
                 pass_car=False
     #display score
     draw_text(str(score),font, white, int(screen_width/2),20)
     
-    #check for collision
-    if pygame.sprite.groupcollide(user_car_group, npc_car_group,False, False):
-        game_over=True
+    
+        
         
     
     if game_over==False and driving== True:
         #generate new cars
         time_now=pygame.time.get_ticks()
+        car_sounds.play()
+        #pygame.mixer.music.play(-1) 
         if time_now-last_car>car_frequency:
             obstacle_car=NpcCar(random.randint(150, 650),-screen_height)
             npc_car_group.add(obstacle_car)
             last_car=time_now
+        
+        #check for collision
+        if pygame.sprite.groupcollide(user_car_group, npc_car_group,False, False):
+            game_over=True
+            car_sounds.stop()
+            explosion_sounds.play()
+            time.sleep(2)
+            explosion_sounds.stop()
 
         #draw and scroll
         road1_rect.y+=scroll_speed
@@ -186,12 +205,18 @@ while run:
             game_over=False
             reset_game()
             score=0
+            #reset original game speed
+            scroll_speed=4
 
     
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             run=False
         if event.type == pygame.MOUSEBUTTONDOWN and driving==False and game_over==False:
+            starting_sound.play()
+            time.sleep(4)
+            starting_sound.stop()
+
             driving=True 
         
             
